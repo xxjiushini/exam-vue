@@ -1,0 +1,135 @@
+$orange1: #f29500;
+
+html,body,#app{
+  height: 100%;
+  width: 100%;
+  font-size: 16px;
+  background-color: #ffffff;
+  color: #333333;
+  font-family:Microsoft YaHei,Arial,sans-serif,"Times New Roman",思源宋体;
+}
+html{
+  font-size:(100 / 720) * 100vw
+}
+@media (min-width: 560px) {
+  html {
+    //font-size: 54px;
+  }
+}
+*{
+  margin: 0;
+  padding: 0;
+}
+a{
+  color: #333333;
+}
+a:link{
+  text-decoration:none;   /* 指正常的未被访问过的链接*/
+}
+.clearfix:before,.clearfix:after{
+  content:"";
+  display: table;
+}
+.clearfix:after{
+  clear: both;
+}
+
+li{
+  list-style: none;
+}
+
+/*试题单选按钮start*/
+.test-default{
+  width: .48rem;
+  height: .48rem;
+  visibility: hidden;
+  position: relative;
+}
+
+//混合声明
+@mixin test-icon($bgimg){
+  &:before{
+    content: '';
+    width: .48rem;
+    height: .48rem;
+    position: absolute;
+    visibility: visible;
+    background: url($bgimg) no-repeat;
+    background-size: 100%;
+  }
+}
+//混合调用
+//未选择
+.test-default-icon{
+  @include test-icon("~@/assets/images/radio.png");
+}
+
+//选中
+.test-select-icon{
+  @include test-icon("~@/assets/images/radio_right.png");
+}
+
+//选错
+.test-error-icon{
+  @include test-icon("~@/assets/images/radio_wrong.png");
+}
+/*试题单选按钮end*/
+
+/*答题按钮区start*/
+.btn{
+  cursor: pointer;
+  outline:none;
+  &:hover{
+    opacity: .8;
+  }
+}
+%btn-basic{
+  width: 1.92rem;
+  height: .64rem;
+  font-size: .28rem;
+  border-radius: 0.08rem;
+}
+
+.btn-prev{
+  @extend %btn-basic;
+  color: $orange1;
+  background-color: #ffffff;
+  border: 1px solid $orange1;
+}
+
+.btn-next{
+  @extend %btn-basic;
+  color: #ffffff;
+  background-color: $orange1;
+  border: 1px solid $orange1;
+  margin-left: .3rem;
+}
+
+.btn-done{
+  @extend %btn-basic;
+  color: #ffffff;
+  background-color: #f2786b;
+  border: 1px solid #f2786b;
+}
+/*答题按钮区end*/
+
+/*弹窗start*/
+.el-dialog{
+  width: 5.92rem;
+  border-radius: .08rem;
+  /deep/.el-dialog__headerbtn{
+    font-size: .3rem;
+    top: .1rem;
+    right: .1rem;
+  }
+  /deep/.el-dialog__body{
+    padding: .18rem .32rem;
+  }
+  /deep/.el-dialog__footer{
+    padding: .12rem .32rem .30rem .32rem;
+  }
+}
+/*弹窗end*/
+.margin-left-0{
+  margin-left: 0;
+}
