@@ -26,18 +26,19 @@ npm run lint
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
-##示例
+### 示例
 onlineTest为示例组件，位置：src/views/onlinePractice
 mock文件夹为mock数据
 
-#testItem组件API
+### testItem组件API
 参数 | 类型 | 必传 | 说明
 :--- | :--- | :--- | :---
 currentIdx | Number | true | 当前题目下标，从0开始
 testLength | Number | true | 题目总数
 testData | Object | true | 题目对象
 handleClickInput | Function | false | 答题后想做的事情
-#testOptions组件API
+
+### testOptions组件API
 参数 | 类型 | 必传 | 说明
 :--- | :--- | :--- | :---
 currentIdx | Number | true | 当前题目下标，从0开始
