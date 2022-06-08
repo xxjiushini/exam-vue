@@ -59,14 +59,16 @@ li{
   }
 }
 //混合调用
-//未选择
-.test-default-icon{
-  @include test-icon("~@/assets/images/radio.png");
-}
-
 //选中
 .test-select-icon{
   @include test-icon("~@/assets/images/radio_right.png");
+}
+//未选择
+.test-default-icon{
+  @include test-icon("~@/assets/images/radio.png");
+  &:checked{
+    @extend .test-select-icon;
+  }
 }
 
 //选错

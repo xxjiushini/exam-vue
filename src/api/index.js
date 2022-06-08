@@ -1,9 +1,7 @@
 /**
  * 请求拦截、相应拦截、错误统一处理
  * @name: axios封装
- * @Author: xiao jun
- * @Date: 2020-09-10
- * Copyright(c) 2015-2010 xiaojun.
+ * @Author: xxjiushini
  */
 import Vue from 'vue';
 import axios from 'axios';

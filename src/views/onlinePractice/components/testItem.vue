@@ -1,8 +1,6 @@
 /**
 * @name: 试题区域组件
-* @Author: xiao jun
-* @Date: 2020-09-10
-* Copyright(c) 2015-2010 xiaojun.
+* @Author: xxjiushini
 */
 <template>
     <div class="item-section">
@@ -12,30 +10,26 @@
             <span v-html="title" ref="testTitle"></span>
         </p>
         <div class="item-body">
-            <div v-show="testData.picturePath != ''||testData.videoPath != ''">
-                <img :src="testData.picturePath" height="auto" width="100%" v-show="testData.picturePath">
-                <video :src="testData.videoPath" height="auto" width="100%" v-show="testData.videoPath"></video>
+            <div v-if="testData.picturePath||testData.videoPath">
+                <img :src="testData.picturePath" height="auto" width="100%" v-if="testData.picturePath">
+                <video :src="testData.videoPath" height="auto" width="100%" v-if="testData.videoPath"></video>
             </div>
             <ul class="item-body-options">
                 <li v-for="(item,index) in testData.itemList" :key="index" class="item-opt">
                     <label :for="'test'+currentIdx+'_'+index">
                         <input
-                                :type="testData.questType == 2?'checkbox':'radio'"
-                                :name="'test'+currentIdx"
+                                :type="testData.questType === '2'?'checkbox':'radio'"
                                 :id="'test'+currentIdx+'_'+index"
+                                :name="'test'+currentIdx"
                                 :value="item.value"
-                                @click="clickInput(index)"
+                                v-model="testData.selectOpt"
                                 class="test-default test-default-icon"
-                                :class="{'test-select-icon': index == testData.correctIdx || testData.selectOpt.indexOf(index) > -1}"
-                                :disabled="testData.isSelect"
+                                :disabled="testData.questType === '2'?testData.selectOpt.includes(item.value):testData.selectOpt!==''"
                         >
-                        <span>{{item.opt}}、{{item.name}}</span>
+                        <span>{{item.value}}、{{item.name}}</span>
                     </label>
                 </li>
             </ul>
-            <div style="text-align: right" v-show="testData.questType == 2&&testData.selectOpt.length > 0 || testData.questType == 4">
-                <button class="btn btn-prev" @click="checkDone" v-show="!testData.isSelect">{{testData.questType == 2&&testData.selectOpt.length > 0?'选好了':'填好了'}}</button>
-            </div>
         </div>
     </div>
 </template>
@@ -44,10 +38,19 @@
     export default {
         name: "testItem",
         props: {
-            currentIdx: Number,
-            testLength: Number,
-            testData: Object,
-            handleClickInput: Function
+            currentIdx: {
+                type: Number,
+                required: true
+            },
+            testData: {
+                type: Object,
+                required: true,
+                default: () => {}
+            },
+            testLength: {
+                type: Number,
+                required: true
+            },
         },
         filters: {
             filterType: function (val) {
@@ -69,140 +72,73 @@
 
         computed: {
             title: function () {
-                if (this.testData.questType == '4') {
-                    return this.testData.testTitle.replace(new RegExp(" ", "gm"),"<input type='text' class='space-box'/>")
+                if (this.testData.questType === '4') {
+                    return this.testData.title.replace(new RegExp(" .", "gm"),"<input type='text' class='space-box'/>")
                 } else {
-                    return this.testData.testTitle
+                    return this.testData.title
                 }
             }
         },
 
         watch: {
             currentIdx: function () {
-                //给input解除改变事件和删除键盘事件
-                let inputNode = document.getElementsByClassName('space-box');
-                for (let i = 0;i < inputNode.length;i++) {
-                    inputNode[i].removeEventListener('change', this.changeInput, false);
-                    inputNode[i].removeEventListener('keydown', this.keydownInput, false)
-                }
                 this.$nextTick(function () {
-                    //如果已经填好了就禁止输入，并赋值
-                    if (this.testData.questType == 4) {
-                        let children = this.$refs.testTitle.childNodes;
-                        let i = 0;
-                        children.forEach(value => {
-                            if(value.nodeName == 'INPUT'){
-                                if (this.testData.isSelect) {
-                                    value.setAttribute('disabled', 'disabled');
-                                }
-                                value.value = this.testData.fillVal[i]?this.testData.fillVal[i]:'';
-                                i++;
-                            }
-                        });
-                    }
-                    //给input添加改变事件和删除键盘事件
-                    let inputNode = document.getElementsByClassName('space-box');
-                    for (let i = 0;i < inputNode.length;i++) {
-                        inputNode[i].addEventListener('change', this.changeInput, false);
-                        inputNode[i].addEventListener('keydown', this.keydownInput, false)
+                    if (this.testData.questType === '4') {
+                        let inputNode = document.getElementsByClassName('space-box');
+                        inputNode[0].value = this.testData.fillVal;
                     }
                 })
-            }
+            },
+
+            'testData.selectOpt': function (n,o) {
+                this.clickInput(n)
+            },
         },
 
         mounted() {
+            this.$nextTick(function () {
+                if (this.testData.questType === '4') {
+                    let inputNode = document.getElementsByClassName('space-box');
+                    inputNode[0].value = this.testData.fillVal;
+                }
+            })
             //给input添加改变事件和删除键盘事件
             let inputNode = document.getElementsByClassName('space-box');
             for (let i = 0;i < inputNode.length;i++) {
                 inputNode[i].addEventListener('change', this.changeInput, false);
-                inputNode[i].addEventListener('keydown', this.keydownInput, false)
             }
         },
 
         methods: {
             //答题选中
-            clickInput(idx) {
-                let _this = this.$parent;
-                let currentData = _this.testData[_this.currentIdx];
-                if (currentData.questType == 1 || currentData.questType == 3) {
+            clickInput(value) {
+                let currentData = this.testData;
+                if (currentData.questType === '1' || currentData.questType === '3') {
                     currentData.isSelect = true;//禁用选择
-                    currentData.selectOpt.push(idx);
-                    currentData.correctIdx = idx;
-                    if (_this.currentIdx != _this.testLength - 1) {
-                        setTimeout(function () {
-                            if (_this.currentIdx != _this.testLength - 1) {
-                                _this.currentIdx ++
-                            }
-                        }.bind(this),500)
-                    }
-                } else if (currentData.questType == 2) {
-                    if (idx.toString()) {
-                        currentData.selectOpt.push(idx);
-                        currentData.selectOpt.sort()
+                } else if (currentData.questType === '2') {
+                    if (value.length) {
+                        currentData.isSelect = true;
+                    } else {
+                        currentData.isSelect = false;
                     }
                 }
                 if (currentData.isSelect) {
                     clearInterval(currentData.timer);
                     currentData.timer = null;
-                    if (currentData.questType == 2||currentData.questType == 4) {
-                        if (_this.currentIdx != _this.testLength - 1) {
-                            _this.currentIdx ++
-                        }
-                    }
                 }
-                this.handleClickInput()
+                this.$emit('handleClickInput',value)
             },
 
             //填空框改变事件
             changeInput(e) {
                 let val = e.target.value;
-                if (!val) return;
-                let inputList = document.getElementsByClassName('space-box');
-                let valArr = val.split('');
-                let idx;
-                for (let i = 0; i < inputList.length; i++) {
-                    if (inputList[i].value == val) {
-                        idx = i
-                    }
-                }
-                for (let i = 0; i < inputList.length; i++) {
-                    if (i > idx && valArr[i - idx]) {
-                        inputList[i].value = valArr[i - idx];
-                        inputList[i].focus()
-                    }
-                }
-                e.target.value = val[0];
-            },
-
-            //填空框删除事件
-            keydownInput(e) {
-                let theEvent = e || window.event;
-                let code = theEvent.keyCode || theEvent.which || theEvent.charCode;
-                let val = e.target.value;
-                if (code == 8) {//backspace按键
-                    if (!val&&e.target.previousElementSibling) {
-                        e.target.previousElementSibling.focus()
-                    }
+                this.testData.fillVal = val
+                if (val) {
+                    this.testData.isSelect = true;
+                } else{
+                    this.testData.isSelect = false;
                 }
             },
-
-            //选好了
-            checkDone() {
-                if (this.testData.questType == 4) {
-                    let children = this.$refs.testTitle.childNodes;
-                    let val ='';
-                    children.forEach(value => {
-                        if(value.nodeName == 'INPUT'){
-                            value.setAttribute('disabled', 'disabled');
-                            val += value.value
-                        }
-                    });
-                    console.log(val);
-                    this.testData.fillVal = val
-                }
-                this.testData.isSelect = true;
-                this.clickInput('')
-            }
 
         }
     }
@@ -219,7 +155,7 @@
     .item-title{
         margin-top: .34rem;
         /deep/.space-box{
-            width: .44rem;
+            width: 1.76rem;
             height: .44rem;
             background-color: #eeeeee;
             border: 1px solid #333333;

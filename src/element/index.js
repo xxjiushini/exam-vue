@@ -1,9 +1,7 @@
 /**
  * 导入自己需要的elementUI组件
  * @name: ele组件
- * @Author: xiao jun
- * @Date: 2020-09-10
- * Copyright(c) 2015-2010 xiaojun.
+ * @Author: xxjiushini
  */
 import {
     Dialog,

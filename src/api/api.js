@@ -1,9 +1,7 @@
 /**
  * 在线考试和练习api
  * @name: api
- * @Author: xiao jun
- * @Date: 2020-09-10
- * Copyright(c) 2015-2010 xiaojun.
+ * @Author: xxjiushini
  */
 import {post, get} from './index.js'
 

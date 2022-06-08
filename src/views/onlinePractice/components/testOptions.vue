@@ -1,15 +1,16 @@
 /**
 * @name: 试题右侧选题卡
-* @Author: xiao jun
-* @Date: 2020-09-10
-* Copyright(c) 2015-2010 xiaojun.
+* @Author: xxjiushini
 */
 <template>
     <div class="main-right">
         <slot name="downTime"></slot>
         <div
                 class="btn test-num-btn"
-                :class="[{'test-num-current': index == currentIdx}, {'test-num-correct': ((testData[index].isSelect && testData[index].questType == 2 && testData[index].selectOpt.toString() == testData[index].correct) || (testData[index].isSelect && testData[index].questType == 4 && testData[index].fillVal == testData[index].correct) || (testData[index].isSelect && testData[index].errIdx == null)) || (isExam && testData[index].isSelect)}, {'test-num-error': !isExam && ((testData[index].isSelect && testData[index].questType == 2 && testData[index].selectOpt.toString() != testData[index].correct) || (testData[index].isSelect && testData[index].questType == 4 && testData[index].fillVal != testData[index].correct) || (testData[index].isSelect && testData[index].errIdx != null))}]"
+                :class="[
+                {'test-num-current': index === currentIdx},
+                {'test-num-correct': testData[index].isSelect&&(isExam || (testData[index].questType === '2' && testData[index].selectOpt.sort().toString() === testData[index].rightAnswer) || (['1','3'].includes(testData[index].questType) && testData[index].selectOpt === testData[index].rightAnswer) || (testData[index].questType === '4' && testData[index].fillVal === testData[index].rightAnswer))},
+                {'test-num-error': !isExam && testData[index].isSelect && ((testData[index].questType === '2' && testData[index].selectOpt.sort().toString() !== testData[index].rightAnswer) || (['1','3'].includes(testData[index].questType) && testData[index].selectOpt !== testData[index].rightAnswer) || (testData[index].questType === '4' && testData[index].fillVal !== testData[index].rightAnswer))}]"
                 v-for="(item, index) in testLength"
                 :key="index"
                 @click="checkedTest(index)"
@@ -21,20 +22,29 @@
     export default {
         name: "testOptions",
         props: {
-            currentIdx: Number,
-            testData: Array,
-            testLength: Number,
-            isExam: Boolean,
-            handleCheckedTest: Function
+            currentIdx: {
+                type: Number,
+                required: true
+            },
+            testData: {
+                type: Array,
+                required: true,
+                default: () => []
+            },
+            testLength: {
+                type: Number,
+                required: true
+            },
+            isExam: {
+                type: Boolean,
+                required: true
+            },
         },
 
         methods: {
             //右侧选择题目
             checkedTest(idx) {
-                let _this = this,$parent;
-                _this.currentIdx = idx;
-                _this.testOptionsShow = false;
-                this.handleCheckedTest(idx)
+                this.$emit('handleCheckedTest',idx)
             },
         }
     }

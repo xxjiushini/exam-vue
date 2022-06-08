@@ -1,8 +1,6 @@
 /**
  * @name: webpack配置文件
- * @Author: xiao jun
- * @Date: 2020-09-10
- * Copyright(c) 2015-2010 xiaojun.
+ * @Author: xxjiushini
  */
 const IS_PROD = ['production', 'prod'].includes(process.env.NODE_ENV);
 const path =  require('path');

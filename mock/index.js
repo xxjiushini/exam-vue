@@ -1,9 +1,7 @@
 /**
  * mock数据
  * @name: mock
- * @Author: xiao jun
- * @Date: 2020-09-10
- * Copyright(c) 2015-2010 xiaojun.
+ * @Author: xxjiushini
  */
 const Mock = require('mockjs');
 import { getExamQuestionList, examStartAndFinish, success } from './json/getExamQuestionList'

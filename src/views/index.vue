@@ -1,8 +1,6 @@
 /**
 * @name: 首页
-* @Author: xiao jun
-* @Date: 2020-09-10
-* Copyright(c) 2015-2010 xiaojun.
+* @Author: xxjiushini
 */
 <template>
     <router-link to="/onlineTest">去考试</router-link>

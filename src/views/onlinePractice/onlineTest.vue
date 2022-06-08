@@ -1,8 +1,6 @@
 /**
 * @name: 在线考试页面
-* @Author: xiao jun
-* @Date: 2020-09-10
-* Copyright(c) 2015-2010 xiaojun.
+* @Author: xxjiushini
 */
 <template>
     <div>
@@ -13,7 +11,8 @@
                         :currentIdx="currentIdx"
                         :testLength="testLength"
                         :testData="testData[currentIdx]"
-                        :handleClickInput="handleClickInput"
+                        @handleClickInput="handleClickInput"
+                        :key="currentIdx"
                 >
                 </testItem>
 
@@ -51,7 +50,7 @@
                         :testData="testData"
                         :testLength="testLength"
                         :isExam="true"
-                        :handleCheckedTest="handleCheckedTest"
+                        @handleCheckedTest="handleCheckedTest"
                 >
                 </testOptions>
             </van-popup>
@@ -178,7 +177,7 @@
             //答题数
             answerCount() {
                 let newArr = this.testData.filter(value => {
-                    return value.isSelect == true
+                    return value.isSelect
                 })
                 return newArr.length
             },
@@ -211,63 +210,47 @@
                 this.timeTotal = res.data.questLimitTime;//总考试时间
                 this.totalGrade = res.data.totalPoints;//总分
                 this.passGrade = res.data.passScore;//及格分
+                //questType 1：单选，2：多选，3：判断，4：填空
                 let newList = list.map((value, key) => {
                     let temp = {
-                        testTitle: value.title,
-                        testId: value.questId,
-                        questType: value.questType,//1：单选，2：多选，3：判断，4：填空
                         itemList: [
                             {
-                                value:'0',
-                                opt: 'A',
+                                value:'A',
                                 name: value.answer1Content,
                             },
                             {
-                                value:'1',
-                                opt: 'B',
+                                value:'B',
                                 name: value.answer2Content,
                             },
                             {
-                                value:'2',
-                                opt: 'C',
+                                value:'C',
                                 name: value.answer3Content,
                             },
                             {
-                                value:'3',
-                                opt: 'D',
+                                value:'D',
                                 name: value.answer4Content,
                             },
                             {
-                                value:'4',
-                                opt: 'E',
+                                value:'E',
                                 name: value.answer5Content,
                             },
                             {
-                                value:'5',
-                                opt: 'F',
+                                value:'F',
                                 name: value.answer6Content,
                             }
                         ],
-                        picturePath: value.picturePath,//图片路径
-                        videoPath: value.videoPath,//视频路径
                         isSelect: false,
-                        correctIdx: null,//正确
-                        selectOpt: [],//多选选择后数组
+                        selectOpt: value.questType==='2'?[]:'',//多选选择后数组
                         fillVal: '',//填空题
                         answerTime: 0,//答题时间
                         timer: setInterval(() => {
                             if (!this.startTestVisible && this.currentIdx == key) {
                                 temp.answerTime ++
                             }
-                        }, 1000)
+                        }, 1000),
+                        ...value
                     };
-                    let answerSize = 0;
-                    temp.itemList.forEach((value1) => {
-                        if (value1.name) {
-                            answerSize ++
-                        }
-                    });
-                    temp.itemList = temp.itemList.splice(0, answerSize);
+                    temp.itemList = temp.itemList.splice(0, value.answerSize);
                     return temp
                 })
                 this.testData = newList;
@@ -276,8 +259,16 @@
             },
 
             //答题后方法
-            handleClickInput() {
-                console.log("答题后想做的事情");
+            handleClickInput(data) {
+                console.log("答题后想做的事情",data);
+                let currentData = this.testData[this.currentIdx];
+                if (currentData.questType === '1' || currentData.questType === '3') {
+                    if (this.currentIdx !== this.testLength - 1) {
+                        setTimeout(() => {
+                            this.currentIdx ++
+                        },500)
+                    }
+                }
             },
 
             showTestOpt() {
@@ -286,7 +277,9 @@
 
             //右侧选择题目
             handleCheckedTest(idx) {
-                console.log("选择题目后做的事情");
+                console.log("选择题目后做的事情",idx);
+                this.currentIdx = idx;
+                this.testOptionsShow = false;
             },
 
             //开始考试按钮
@@ -313,22 +306,13 @@
 
                 let qList = this.testData.map(value => {
                     let temp = {
-                        questId: value.testId,
-                        questAnswer: value.correctIdx != null?value.itemList[value.correctIdx].name: '',
+                        questId: value.questId,
                         answerTime: value.answerTime,
                     };
-                    if (value.questType != '4') {
-                        value.selectOpt.forEach((value2, index2) => {
-                            switch (value2 + '') {
-                                case '0':value.selectOpt[index2] = 'A';break;
-                                case '1':value.selectOpt[index2] = 'B';break;
-                                case '2':value.selectOpt[index2] = 'C';break;
-                                case '3':value.selectOpt[index2] = 'D';break;
-                                case '4':value.selectOpt[index2] = 'E';break;
-                                case '5':value.selectOpt[index2] = 'F';
-                            }
-                        });
+                    if (value.questType === '2') {
                         temp.questAnswer = value.selectOpt.join('')
+                    } else if (value.questType === '1'||value.questType === '3') {
+                        temp.questAnswer = value.selectOpt
                     } else {
                         temp.questAnswer = value.fillVal
                     }
